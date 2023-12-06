@@ -2,8 +2,6 @@
 
 open AdventCommon
 open System.IO
-open System.Text.RegularExpressions
-
 
 let testinput1 = "seeds: 79 14 55 13
 
@@ -39,14 +37,20 @@ humidity-to-location map:
 60 56 37
 56 93 4"
 
-type Range = { InStart:uint; OutStart:uint; Length:uint }
+type Range = { InStart:int64; OutStart:int64; Length:int64 }
     with static member Parse (input:string) =
-            let arr = input.Split([|' '|]) |> Array.map uint
+            let arr = input.Split([|' '|]) |> Array.map int64
             { InStart = arr.[1]; OutStart = arr.[0]; Length = arr.[2] }
          member x.Match value =
             let diff = value - x.InStart
-            if diff >= 0u && diff < x.Length then
+            if diff >= 0l && diff < x.Length then
                 Some (x.OutStart + diff)
+            else
+                None
+         member x.MatchBack value =
+            let diff = value - x.OutStart
+            if diff >= 0l && diff < x.Length then
+                Some(x.InStart + diff)
             else
                 None
 
@@ -60,10 +64,14 @@ type Mapping = { From:string; To:string; Ranges: Range list }
             match x.Ranges |> List.choose (fun r -> r.Match value) with
             | converted::_ -> converted
             | [] -> value
+         member x.ConvertBack value =
+            match x.Ranges |> Seq.choose (fun r -> r.MatchBack value) |> Seq.tryItem 0 with
+            | Some(converted) -> converted
+            | None -> value
 
 let part1 (input:string) =
     let parts = input.Split("\n\n")
-    let seeds = parts.[0].Split([|' '|]) |> Array.skip 1 |> Array.map uint
+    let seeds = parts.[0].Split([|' '|]) |> Array.skip 1 |> Array.map int64
     let maps = parts |> Array.skip 1 |> Array.map Mapping.Parse |> Array.map (fun m -> m.From, m) |> Map.ofSeq
     let rec map key value =
         match Map.tryFind key maps with
@@ -82,24 +90,28 @@ printfn "Part 1 output: %A" output1
 
 let part2 (input:string) =
     let parts = input.Split("\n\n")
-    let seedranges = parts.[0].Split([|' '|]) |> Array.skip 1 |> Array.map uint |> List.ofArray
-    let rec getseeds list =
-        match list with
-        | start::length::tail -> [start..(start + length)]@(getseeds tail)
-        | _ -> []
-    let seeds = getseeds seedranges |> Array.ofList
+    let seedranges = parts.[0].Split([|' '|])
+                        |> Array.skip 1
+                        |> Array.map int64
+                        |> Array.chunkBySize 2
+                        |> Array.map (fun arr -> arr.[0], arr.[1])
 
-    let maps = parts |> Array.skip 1 |> Array.map Mapping.Parse |> Array.map (fun m -> m.From, m) |> Map.ofSeq
-    let rec map key value =
+    let inrange seed =
+        seedranges |> Array.exists (fun (start,length) -> seed >= start && seed <= start + length)
+
+    let maps = parts |> Array.skip 1 |> Array.map Mapping.Parse |> Array.map (fun m -> m.To, m) |> Map.ofSeq
+    let rec mapBack key value =
         match Map.tryFind key maps with
-        | Some(mapping) ->
-            map mapping.To (mapping.Convert(value))
         | None -> value
-    let count = Array.length seeds
+        | Some(mapping) ->
+            mapBack mapping.From (mapping.ConvertBack(value))
 
-    let locations = seeds |> Seq.mapi (fun index seed -> printfn "%f %%" (100. * (float index) / (float count)) ;map "seed" seed; )
-    //let locations = seeds |> Array.map (fun seed -> async { return map "seed" seed } ) |> Async.Parallel |> Async.RunSynchronously
-    locations |> Seq.min
+    let locations = Seq.initInfinite (fun i -> int64 i)
+
+    locations |> Seq.map (fun location -> location, mapBack "location" location )
+              |> Seq.filter (fun (_,seed) -> inrange seed)
+              |> Seq.item 0
+              |> fst
 
 let testoutput2 = testinput1 |> part2
 printfn "Test part 2 output: %A" testoutput2
