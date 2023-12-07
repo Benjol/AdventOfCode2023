@@ -31,8 +31,8 @@ let passes counts (set:string) =
     result.Red <= counts.Red && result.Green <= counts.Green && result.Blue <= counts.Blue
 
 let gamesets (game:string) =
-    let [|id; setlist|] = game.Split([|':'|])
-    let sets = setlist.Split([|';'|])
+    let [|id; setlist|] = game |> Split ':'
+    let sets = setlist |> Split ';'
     let number = id.Replace("Game ", "") |> int
     (number, sets)
 
@@ -48,7 +48,7 @@ let part1 counts (games:seq<string>) =
     games |> Seq.map (score counts) |> Seq.sum
 
 
-let testoutput1 = testinput1 |> getlines |> part1 { Red = 12; Green = 13; Blue = 14 }
+let testoutput1 = testinput1 |> Split2 '\r' '\n' |> part1 { Red = 12; Green = 13; Blue = 14 }
 printfn "Test part 1 output: %d" testoutput1
 
 let input1 = File.ReadAllLines("Day2.txt")
@@ -65,7 +65,7 @@ let part2 (games:seq<string>) =
     let powers = scores |> Seq.map (fun c -> c.Red * c.Blue * c.Green)
     Seq.sum powers
 
-let testoutput2 = testinput1 |> getlines |> part2
+let testoutput2 = testinput1 |> Split2 '\r' '\n' |> part2
 printfn "Test part 2 output: %d" testoutput2
 
 let output2 = input1 |> part2

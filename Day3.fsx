@@ -40,7 +40,7 @@ let part1 (schematic:seq<string>) =
     let retained = numbers' |> Seq.filter hassymbol
     retained |> Seq.sumBy (fun number -> number.Value)
 
-let testoutput1 = testinput1 |> getlines |> part1
+let testoutput1 = testinput1 |> Split2 '\r' '\n' |> part1
 printfn "Test part 1 output: %d" testoutput1
 
 let input1 = File.ReadAllLines("Day3.txt")
@@ -64,7 +64,7 @@ let part2 (schematic:seq<string>) =
 
     gears' |> Seq.sumBy gearratio
 
-let testoutput2 = testinput1 |> getlines |> part2
+let testoutput2 = testinput1 |> Split2 '\r' '\n' |> part2
 printfn "Test part 2 output: %d" testoutput2
 
 let output2 = input1 |> part2

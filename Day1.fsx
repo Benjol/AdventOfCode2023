@@ -17,7 +17,7 @@ pqr3stu8vwx
 a1b2c3d4e5f
 treb7uchet"
 
-let test1output = test1input |> getlines |> part1 |> Array.sum
+let test1output = test1input |> Split2 '\r' '\n' |> part1 |> Array.sum
 
 printfn "Test part 1 output: %d" test1output
 
@@ -50,7 +50,7 @@ let lineHack (line:string) =
 
 let part2 (input:string[]) = input |> Array.map lineHack
 
-let test2output = test2input |> getlines |> part2 |> Array.sum
+let test2output = test2input |> Split2 '\r' '\n' |> part2 |> Array.sum
 
 printfn "Test part 2 output: %d" test2output
 

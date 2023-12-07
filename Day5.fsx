@@ -71,7 +71,7 @@ type Mapping = { From:string; To:string; Ranges: Range list }
 
 let part1 (input:string) =
     let parts = input.Split("\n\n")
-    let seeds = parts.[0].Split([|' '|]) |> Array.skip 1 |> Array.map int64
+    let seeds = parts.[0] |> Split ' ' |> Array.skip 1 |> Array.map int64
     let maps = parts |> Array.skip 1 |> Array.map Mapping.Parse |> Array.map (fun m -> m.From, m) |> Map.ofSeq
     let rec map key value =
         match Map.tryFind key maps with

@@ -12,9 +12,9 @@ Card 5: 87 83 26 28 32 | 88 30 70 12 93 22 82 36
 Card 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11"
 
 let matchcount (card:string) =
-    let sections = card.Split([|':';'|'|], StringSplitOptions.RemoveEmptyEntries)
-    let winning = sections.[1].Split([|' '|], StringSplitOptions.RemoveEmptyEntries)
-    let got = sections.[2].Split([|' '|], StringSplitOptions.RemoveEmptyEntries)
+    let sections = card |> Split2 ':' '|'
+    let winning = sections.[1] |> Split ' '
+    let got = sections.[2] |> Split ' '
     got |> Array.filter (fun n -> Array.contains n winning) |> Array.length
 
 let score (card:string) =
@@ -23,7 +23,7 @@ let score (card:string) =
 
 let part1 (cards:seq<string>) = cards |> Seq.map score |> Seq.sum
 
-let testoutput1 = testinput1 |> getlines |> part1
+let testoutput1 = testinput1 |> Split2 '\r' '\n' |> part1
 printfn "Test part 1 output: %d" testoutput1
 
 let input1 = File.ReadAllLines("Day4.txt")
@@ -42,7 +42,7 @@ let part2 (cards:seq<string>) =
            scores.[i + j] <- scores.[i + j] + scores.[i]
     Array.sum scores
 
-let testoutput2 = testinput1 |> getlines |> part2
+let testoutput2 = testinput1 |> Split2 '\r' '\n' |> part2
 printfn "Test part 2 output: %d" testoutput2
 
 let output2 = input1 |> part2
