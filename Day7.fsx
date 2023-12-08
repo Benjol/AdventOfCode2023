@@ -31,9 +31,9 @@ let getType withJokers hand =
     //with 0 joker it's same as before
     let groups = hand.Cards.ToCharArray() |> Array.groupBy id |> Array.sortByDescending (fun (_,grp) -> grp.Length)
     match (jokers, groups.Length) with
+    | (_, 1) //XXXXX
     | (5, _) //JJJJJ
     | (4, _) //JJJJA
-    | (_, 1) //XXXXX
     | (3, 2) //JJJAA
     | (2, 2) //JJAAA
     | (1, 2) //JAAAA
